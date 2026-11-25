@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8f0f10">
+<title>中国知识抽签乐 · 最终豪华版</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+Thai:wght@400;700&family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:calc(15.5px * var(--fs,1))}
+body{font-family:'Noto Serif SC','Noto Sans Thai',system-ui,'PingFang SC','Microsoft YaHei',sans-serif;min-height:100dvh;color:#ffe9c9;overflow-x:hidden;
+background:radial-gradient(circle at 12% 6%,rgba(255,196,86,.22),transparent 38%),radial-gradient(circle at 88% 8%,rgba(255,90,60,.18),transparent 40%),radial-gradient(circle at 50% 100%,rgba(120,20,20,.6),transparent 55%),linear-gradient(170deg,#6d1212 0%,#4c0b0b 45%,#320707 100%)}
+button{font-family:inherit}
+/* 两侧中国风：对联+灯笼+中国结+祥云边 */
+.couplet{position:fixed;top:12vh;width:clamp(34px,4.5vw,54px);z-index:1;writing-mode:vertical-rl;text-orientation:upright;
+font-family:'Ma Shan Zheng',cursive;font-size:clamp(1.2rem,3.4vw,2.2rem);color:#ffd76a;letter-spacing:.35em;
+background:linear-gradient(180deg,#c81818,#8f0f10);border:2px solid #ffd76a;border-radius:8px;padding:.9em .18em;
+box-shadow:0 8px 24px rgba(0,0,0,.5),inset 0 0 14px rgba(255,215,106,.25);text-shadow:0 0 12px rgba(255,215,106,.6);animation:swayC 5s ease-in-out infinite alternate}
+.couplet.l{left:1.2vw}.couplet.r{right:1.2vw;animation-delay:1.4s}
+@keyframes swayC{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg)}}
+.knot{position:fixed;top:2vh;width:clamp(26px,3.4vw,40px);aspect-ratio:1;z-index:1;filter:drop-shadow(0 0 10px rgba(255,80,60,.6));animation:swayC 4s ease-in-out infinite alternate}
+.knot.l{left:calc(1.2vw + 4px)}.knot.r{right:calc(1.2vw + 4px);animation-delay:1s}
+.lantern{position:fixed;top:0;width:clamp(40px,5vw,64px);height:clamp(56px,7vw,88px);z-index:1;transform-origin:top center;animation:swayC 4.5s ease-in-out infinite alternate}
+.lantern.l{left:calc(1.2vw - 6px);top:6vh}.lantern.r{right:calc(1.2vw - 6px);top:6vh;animation-delay:1.2s}
+.lantern .bd{position:absolute;left:8%;right:8%;top:14%;bottom:16%;border-radius:50%/45%;background:radial-gradient(circle at 35% 30%,#ff8a5c,#e0301e 55%,#8f1208);box-shadow:0 0 22px rgba(255,120,60,.55),inset 0 -8px 14px rgba(0,0,0,.35);border:2px solid #ffd76a}
+.lantern .bd::before,.lantern .bd::after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:44%;height:8px;background:linear-gradient(90deg,#c9992e,#ffe9a0,#c9992e);border-radius:3px}
+.lantern .bd::before{top:-6px}.lantern .bd::after{bottom:-6px}
+.cloudEdge{position:fixed;bottom:0;left:0;right:0;height:clamp(30px,5vh,60px);z-index:1;pointer-events:none;opacity:.5;
+background:repeating-radial-gradient(circle at 50% 100%,rgba(247,209,84,.5) 0 4px,transparent 4px 12px)}
+canvas#fx{position:fixed;inset:0;z-index:40;pointer-events:none}
+#flash{position:fixed;inset:0;z-index:50;pointer-events:none;opacity:0;transition:opacity .35s}
+/* 顶栏：标题左 + 六筒同排 */
+header{position:relative;z-index:5;display:flex;align-items:center;gap:clamp(.5rem,1.5vw,1.2rem);flex-wrap:wrap;padding:clamp(.6rem,2vh,1.2rem) clamp(3.5rem,6vw,4.5rem) 0}
+.title{font-family:'Ma Shan Zheng',cursive;font-size:clamp(1.8rem,5.5vw,3.2rem);color:#ffd76a;text-shadow:0 0 22px rgba(255,180,60,.6),0 3px 0 #7a1010;letter-spacing:.06em;white-space:nowrap}
+.tubesRow{display:flex;gap:clamp(.4rem,1.2vw,.9rem);flex-wrap:wrap}
+.tubeBtn{font-family:'Ma Shan Zheng',cursive;font-size:clamp(1.05rem,3vw,1.7rem);color:#ffe9a0;padding:.35em 1em;border-radius:999px;cursor:pointer;
+border:2px solid #ffd76a;background:linear-gradient(180deg,#c81818,#8f0f10);box-shadow:0 6px 16px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,220,150,.4);transition:.18s;white-space:nowrap}
+.tubeBtn:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(0,0,0,.5),0 0 18px rgba(255,215,106,.5)}
+.tubeBtn.on{background:linear-gradient(180deg,#ffe9a0,#f5c14e);color:#8f0f10;box-shadow:0 0 22px rgba(255,215,106,.7)}
+main{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 clamp(3rem,6vw,4.5rem)}
+.stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;min-height:0;padding-top:.5rem}
+/* 大签筒（加高、可满屏） */
+.tubeWrap{position:relative;height:min(calc(100dvh - 210px),820px);aspect-ratio:.62;min-height:340px}
+.tubeWrap.shaking{animation:tshake .4s ease-in-out infinite}
+@keyframes tshake{0%,100%{transform:rotate(0) translateX(0)}25%{transform:rotate(-4deg) translateX(-8px)}75%{transform:rotate(4deg) translateX(8px)}}
+.hole{position:absolute;left:13%;right:13%;bottom:49%;height:5.5%;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#4a0606,#2a0303 75%);box-shadow:inset 0 8px 14px rgba(0,0,0,.85);z-index:1}
+.sticks{position:absolute;left:14%;right:14%;bottom:50%;height:46%;z-index:2}
+.stick{position:absolute;bottom:0;width:15%;height:100%;background:linear-gradient(90deg,#b8860b,#f7d154 40%,#e8b425 70%,#b8860b);
+clip-path:polygon(50% 0%,90% 10%,90% 100%,10% 100%,10% 10%);transform-origin:50% 100%;transform:rotate(var(--r));box-shadow:inset 0 0 6px rgba(120,80,0,.45)}
+.stick i{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:16%;writing-mode:vertical-rl;font-style:normal;color:#c0392b;font-weight:900;font-size:clamp(.6rem,1.8vmin,.95rem);letter-spacing:.12em;text-shadow:0 1px 0 rgba(255,255,255,.4)}
+.stick .dot{position:absolute;top:3.5%;left:50%;transform:translateX(-50%);width:16%;aspect-ratio:1;border-radius:50%;background:#0e8f8f;box-shadow:0 0 4px rgba(0,120,120,.6)}
+.tubeWrap.shaking .stick{animation:sjit .15s infinite}
+@keyframes sjit{50%{transform:rotate(var(--r)) translateY(-9px)}}
+.tubeBody{position:absolute;left:5%;right:5%;bottom:0;height:56%;border-radius:16px 16px 22px 22px;z-index:3;
+background:linear-gradient(90deg,#7d0d0d,#c81818 15%,#ef3b2d 45%,#c81818 85%,#7d0d0d);
+box-shadow:inset 0 -18px 30px rgba(0,0,0,.42),inset 0 10px 18px rgba(255,120,90,.25),0 18px 40px rgba(0,0,0,.5)}
+.tubeBody::before{content:"";position:absolute;top:-2.8%;left:1%;right:1%;height:6%;border-radius:50%;z-index:4;
+background:linear-gradient(180deg,transparent 0 46%,#f7d154 50% 60%,#c99416 60% 72%,transparent 72%)}
+.tubeBody::after{content:"";position:absolute;left:0;right:0;bottom:0;height:13%;opacity:.9;
+background:repeating-radial-gradient(circle at 50% 100%,rgba(247,209,84,.95) 0 3px,transparent 3px 9px)}
+.band{position:absolute;left:0;right:0;height:9%;z-index:4;box-shadow:0 2px 6px rgba(0,0,0,.35),inset 0 2px 3px rgba(255,255,255,.5);
+background:repeating-radial-gradient(circle at 50% 100%,rgba(255,255,255,.55) 0 2px,transparent 2px 7px),linear-gradient(180deg,#4fd2f2,#1899c9)}
+.band.top{top:7%}.band.bot{bottom:16%}
+.emblem{position:absolute;left:50%;top:45%;width:32%;aspect-ratio:1;transform:translate(-50%,-50%) rotate(45deg);z-index:5;
+background:linear-gradient(135deg,#f7d154,#c99416);border:3px solid #f7d154;border-radius:14%;display:flex;align-items:center;justify-content:center;
+box-shadow:0 4px 12px rgba(0,0,0,.45),inset 0 0 10px rgba(255,255,255,.45)}
+.emblem b{transform:rotate(-45deg);font-family:'Ma Shan Zheng',cursive;font-size:clamp(1.6rem,6vmin,3rem);color:#c0392b}
+.flystick{position:absolute;left:50%;bottom:52%;width:9%;height:30%;margin-left:-4.5%;z-index:8;
+background:linear-gradient(90deg,#b8860b,#f7d154 40%,#e8b425 70%,#b8860b);clip-path:polygon(50% 0%,90% 10%,90% 100%,10% 100%,10% 10%);
+animation:fly .95s cubic-bezier(.3,.8,.4,1) forwards;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+.flystick i{position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:center;padding-top:14%;writing-mode:vertical-rl;font-style:normal;color:#c0392b;font-weight:900;font-size:.9rem;letter-spacing:.12em}
+@keyframes fly{0%{transform:translateY(0) rotate(0);opacity:1}45%{transform:translateY(-170px) rotate(20deg);opacity:1}100%{transform:translateY(-80px) rotate(96deg) translateX(70px);opacity:0}}
+.row{display:flex;gap:.7rem;justify-content:center;flex-wrap:wrap;margin:.8rem 0}
+.btn{font-size:clamp(1.05rem,3vmin,1.6rem);font-weight:900;padding:.6em 1.6em;border-radius:999px;border:2px solid rgba(255,205,110,.6);color:#4a0c06;cursor:pointer;
+background:linear-gradient(180deg,#ffe9a0,#f5c14e 55%,#d99a26);box-shadow:0 8px 22px rgba(0,0,0,.45),inset 0 2px 0 rgba(255,255,255,.7);transition:.15s;position:relative;overflow:hidden}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 36%,rgba(255,255,255,.55) 50%,transparent 64%);transform:translateX(-130%);transition:.45s}
+.btn:hover::after{transform:translateX(130%)}
+.btn:hover{transform:translateY(-3px)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:linear-gradient(180deg,#c81818,#8f0f10);color:#ffe9a0}
+/* 卷轴题目 */
+#scrollWrap{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(20,4,2,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);padding:1rem}
+#scrollWrap.on{display:flex}
+.scrollBox{position:relative;width:min(820px,94vw);max-height:88vh;display:flex;align-items:stretch}
+.roller{flex:none;width:26px;border-radius:14px;background:linear-gradient(90deg,#3a1c0b,#7a3f1a 40%,#3a1c0b);box-shadow:0 6px 18px rgba(0,0,0,.6);position:relative}
+.roller::before,.roller::after{content:"";position:absolute;left:-4px;right:-4px;height:14px;background:linear-gradient(90deg,#8a6420,#ffe9a0,#8a6420);border-radius:6px}
+.roller::before{top:-6px}.roller::after{bottom:-6px}
+.paper{flex:1;overflow:auto;background:linear-gradient(160deg,#fdf3dc,#f4e3bd 60%,#e9d2a4);border-top:3px solid #c9992e;border-bottom:3px solid #c9992e;box-shadow:inset 0 0 40px rgba(160,120,50,.25);padding:clamp(1rem,3.5vmin,2rem);text-align:center;transform:scaleX(0);transform-origin:left center;transition:transform .5s cubic-bezier(.3,1.1,.4,1)}
+#scrollWrap.open .paper{transform:scaleX(1)}
+.pinner{opacity:0;transition:opacity .3s .35s}
+#scrollWrap.open .pinner{opacity:1}
+.qnum{display:inline-block;padding:.25em 1.1em;border-radius:999px;background:linear-gradient(180deg,#e04030,#8f1208);color:#ffe9a0;font-family:'Ma Shan Zheng',cursive;font-size:clamp(1.1rem,3.2vmin,1.7rem);border:2px solid #ffd76a}
+.qs{font-size:clamp(1.5rem,5.2vmin,2.8rem);font-weight:900;color:#5a1a0a;line-height:1.5;margin-top:.5em}
+.qpy{font-size:clamp(1rem,2.9vmin,1.6rem);color:#a3540a;margin-top:.3em;letter-spacing:.04em}
+.opts{display:grid;gap:.7rem;margin-top:1rem;text-align:left}
+.opt{position:relative;display:flex;align-items:center;gap:.7em;padding:.7em .9em;border-radius:.9rem;cursor:pointer;border:2px solid rgba(160,110,40,.5);background:rgba(255,250,235,.8);transition:.15s}
+.opt:hover:not(:disabled){transform:translateY(-3px);border-color:#c9992e;box-shadow:0 8px 20px rgba(120,80,20,.25)}
+.opt:disabled{cursor:default}
+.opt .tag{flex:none;width:2.1em;height:2.1em;border-radius:.6em;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-weight:800;color:#ffe9a0;background:linear-gradient(180deg,#e04030,#8f1208)}
+.opt .tx{font-size:clamp(1.15rem,3.4vmin,1.9rem);font-weight:800;color:#4a1a08}
+.opt .pp{font-size:clamp(.85rem,2.4vmin,1.2rem);color:#a3540a}
+.opt .th{font-size:clamp(.85rem,2.4vmin,1.2rem);color:#7a3a8a}
+.opt.right{border-color:#0a8a4a;background:rgba(60,200,120,.2);box-shadow:0 0 0 2px rgba(10,138,74,.4),0 0 22px rgba(60,200,120,.4)}
+.opt.right .tx{color:#065f46}
+.opt.wrong{border-color:#c02020;background:rgba(220,60,50,.15);animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+.expth{display:none;margin-top:.9rem;padding:.8em 1em;border-radius:.9rem;border:2px solid rgba(160,110,40,.5);background:rgba(255,250,235,.9);font-size:clamp(1rem,2.9vmin,1.5rem);line-height:1.7;color:#5a1a0a;text-align:left}
+.expth.on{display:block;animation:fade .3s}
+.expth .ok{color:#0a8a4a;font-weight:800}
+.expth .no{color:#c02020;font-weight:800}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+/* 结果 */
+#resWrap{position:fixed;inset:0;z-index:62;display:none;align-items:center;justify-content:center;background:rgba(20,4,2,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+#resWrap.on{display:flex}
+.res{text-align:center;padding:clamp(1.6rem,5vmin,3rem);border-radius:1.4rem;border:2px solid rgba(255,205,110,.55);background:linear-gradient(160deg,rgba(120,25,15,.92),rgba(70,12,8,.94));box-shadow:0 20px 50px rgba(0,0,0,.55);width:min(560px,92vw)}
+.res .big{font-family:'Ma Shan Zheng',cursive;font-size:clamp(2.4rem,8vmin,4.4rem);color:#ffd76a;text-shadow:0 0 24px rgba(255,180,60,.5)}
+.res .sc{font-family:'Orbitron',monospace;font-size:clamp(2.6rem,9vmin,5rem);color:#ffe9a0;text-shadow:0 0 26px rgba(255,200,90,.5)}
+.res .st{font-size:clamp(2rem,6vmin,3.6rem);letter-spacing:.3em}
+.res .st span{color:rgba(255,220,150,.2)}
+.res .st span.lit{color:#ffd76a;text-shadow:0 0 22px rgba(255,200,90,.6);animation:starpop .45s both}
+@keyframes starpop{from{transform:scale(0) rotate(-60deg);opacity:0}60%{transform:scale(1.3)}to{transform:scale(1)}}
+.res .dt{font-size:clamp(1rem,3vmin,1.6rem);color:#ffcf8a;margin:.6em 0 1.1em}
+.tools{position:fixed;top:.8rem;right:.8rem;z-index:70;display:flex;gap:.4rem}
+.tbtn{width:2.8rem;height:2.8rem;border-radius:.8rem;border:1.5px solid rgba(255,205,110,.55);background:rgba(60,10,6,.85);font-size:1.1rem;font-weight:900;cursor:pointer;color:#ffe9c9}
+.tbtn:hover{border-color:#ffd76a;box-shadow:0 0 14px rgba(255,190,80,.4)}
+#toast{position:fixed;left:50%;bottom:1.4rem;transform:translate(-50%,20px);opacity:0;z-index:90;padding:.6em 1.4em;border-radius:999px;background:rgba(60,10,6,.92);border:1.5px solid rgba(255,205,110,.55);font-size:clamp(1rem,2.6vmin,1.3rem);transition:.3s;pointer-events:none;color:#ffe9c9}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<i class="couplet l">天天向上</i><i class="couplet r">好好学习</i>
+<svg class="knot l" viewBox="0 0 40 40"><circle cx="20" cy="14" r="9" fill="none" stroke="#e0301e" stroke-width="4"/><path d="M14 22 L10 36 M26 22 L30 36" stroke="#e0301e" stroke-width="4" fill="none"/></svg>
+<svg class="knot r" viewBox="0 0 40 40"><circle cx="20" cy="14" r="9" fill="none" stroke="#e0301e" stroke-width="4"/><path d="M14 22 L10 36 M26 22 L30 36" stroke="#e0301e" stroke-width="4" fill="none"/></svg>
+<div class="lantern l"><i class="bd"></i></div><div class="lantern r"><i class="bd"></i></div>
+<div class="cloudEdge"></div>
+<canvas id="fx"></canvas>
+<div id="flash"></div>
+<header>
+  <div class="title">中国知识抽签乐</div>
+  <div class="tubesRow" id="tubesRow"></div>
+</header>
+<main>
+  <div class="stage">
+    <div class="tubeWrap" id="tubeWrap">
+      <div class="hole"></div>
+      <div class="sticks" id="sticks"></div>
+      <div class="tubeBody"><i class="band top"></i><i class="band bot"></i><div class="emblem"><b>签</b></div></div>
+    </div>
+    <div class="row"><button class="btn" id="shakeBtn">🎋 摇签抽签</button></div>
+  </div>
+</main>
+<div id="scrollWrap">
+  <div class="scrollBox">
+    <div class="roller"></div>
+    <div class="paper"><div class="pinner">
+      <div class="qnum" id="qNum">第 1 签</div>
+      <div class="qs" id="qS"></div>
+      <div class="qpy" id="qP"></div>
+      <div class="opts" id="qO"></div>
+      <div class="expth" id="qE"></div>
+      <div class="row"><button class="btn" id="nextBtn" disabled>🎋 下一签</button></div>
+    </div></div>
+    <div class="roller"></div>
+  </div>
+</div>
+<div id="resWrap">
+  <div class="res">
+    <div class="big" id="rT">🎉 抽签完成!</div>
+    <div class="sc" id="rS">0</div>
+    <div class="st" id="rSt"></div>
+    <div class="dt" id="rD"></div>
+    <div class="row"><button class="btn" id="rRetry">🔁 再抽一次</button><button class="btn ghost" id="rHome">🏠 返回选筒</button></div>
+  </div>
+</div>
+<div class="tools"><button class="tbtn" id="fsBtn">字</button><button class="tbtn" id="sndBtn">🔊</button><button class="tbtn" id="fullBtn">⛶</button></div>
+<div id="toast"></div>
+<script>
+'use strict';
+var $=function(s){return document.querySelector(s)};
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on')},1700)}
+function flash(c){var f=$('#flash');f.style.background=c;f.style.opacity=1;setTimeout(function(){f.style.opacity=0},90)}
+var AC=null,muted=localStorage.getItem('cq3_mute')==='1';
+function ac(){if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}if(AC&&AC.state==='suspended'){AC.resume().catch(function(){})}return AC}
+function tone(f,d,type,g,dl){if(muted)return;var a=ac();if(!a)return;try{var o=a.createOscillator(),v=a.createGain();dl=dl||0;o.type=type||'sine';o.frequency.value=f;v.gain.setValueAtTime(g||.12,a.currentTime+dl);v.gain.exponentialRampToValueAtTime(.0001,a.currentTime+dl+d);o.connect(v);v.connect(a.destination);o.start(a.currentTime+dl);o.stop(a.currentTime+dl+d+.03)}catch(e){}}
+function sfxRattle(){tone(140+Math.random()*220,.045,'triangle',.06)}
+function sfxGong(){tone(98,.7,'sine',.22);tone(147,.6,'sine',.14,.02);tone(294,.4,'sine',.08,.04)}
+function sfxOk(){tone(659,.1,'sine',.13);tone(784,.12,'sine',.13,.09);tone(1046,.18,'sine',.11,.18)}
+function sfxNo(){tone(170,.22,'sawtooth',.1)}
+function sfxWin(){[523,659,784,1046,1319].forEach(function(f,i){tone(f,.18,'sine',.12,i*.1)})}
+/* 100题 [问,问拼音,[[选,选拼音,选泰]x3],答案] */
+var QS=[
+['中国一共有多少个民族？','Zhōngguó yígòng yǒu duōshao ge mínzú?',[['50','wǔshí','50'],['56','wǔshíliù','56'],['60','liùshí','60']],1],
+['中国人口最多的民族是？','Zhōngguó rénkǒu zuì duō de mínzú shì?',[['壮族','Zhuàngzú','จ้วง'],['汉族','Hànzú','ฮั่น'],['藏族','Zàngzú','ทิเบต']],1],
+['"学而时习之"出自哪本书？','"Xué ér shí xí zhī" chū zì nǎ běn shū?',[['《论语》','Lúnyǔ','หลุนอวี่'],['《道德经》','Dàodéjīng','เต้าเต๋อจิง'],['《西游记》','Xīyóujì','ไซอิ๋ว']],0],
+['"千里之行，始于足下"出自？','"Qiān lǐ zhī xíng, shǐ yú zú xià" chū zì?',[['《道德经》','Dàodéjīng','เต้าเต๋อจิง'],['《论语》','Lúnyǔ','หลุนอวี่'],['《诗经》','Shījīng','ซือจิง']],0],
+['汉字"文"的正确读音是？','Hànzì "wén" de zhèngquè dúyīn shì?',[['wén','wén','เวน'],['mén','mén','เหมิน'],['wèng','wèng','เวิง']],0],
+['"你好"的正确拼音是？','"Nǐ hǎo" de zhèngquè pīnyīn shì?',[['nǐ hǎo','nǐ hǎo','หนีห่าว'],['mǐ hǎo','mǐ hǎo','หมี่ห่าว'],['nǐ hào','nǐ hào','หนีห้าว']],0],
+['中国全国通用的语言是？','Zhōngguó quánguó tōngyòng de yǔyán shì?',[['普通话','Pǔtōnghuà','ผู่ทงฮั่ว'],['粤语','Yuèyǔ','ภาษากวางตุ้ง'],['闽南语','Mǐnnányǔ','ภาษาหมิ่นหนาน']],0],
+['春节是农历哪一天？','Chūnjié shì nónglì nǎ yì tiān?',[['正月初一','zhēngyuè chū yī','1 ค่ำเดือน 1'],['正月十五','zhēngyuè shíwǔ','15 ค่ำเดือน 1'],['八月十五','bāyuè shíwǔ','15 ค่ำเดือน 8']],0],
+['十二生肖排在第一位的是？','Shí\'èr shēngxiào pái zài dì yī wèi de shì?',[['鼠','shǔ','หนู'],['牛','niú','วัว'],['龙','lóng','มังกร']],0],
+['十二生肖一共有多少个？','Shí\'èr shēngxiào yígòng yǒu duōshao ge?',[['10','shí','10'],['12','shí\'èr','12'],['14','shísì','14']],1],
+['地支"午"对应的生肖是？','Dìzhī "wǔ" duìyìng de shēngxiào shì?',[['马','mǎ','ม้า'],['蛇','shé','งู'],['鸡','jī','ไก่']],0],
+['端午节人们通常吃什么？','Duānwǔjié rénmen tōngcháng chī shénme?',[['粽子','zòngzi','บ๊ะจ่าง'],['月饼','yuèbǐng','ขนมไหว้พระจันทร์'],['汤圆','tāngyuán','บัวลอย']],0],
+['中秋节全家一起吃什么？','Zhōngqiūjié quánjiā yìqǐ chī shénme?',[['月饼','yuèbǐng','ขนมไหว้พระจันทร์'],['饺子','jiǎozi','เกี๊ยว'],['年糕','niángāo','เหนียนเกา']],0],
+['元宵节又叫做什么？','Yuánxiāojié yòu jiàozuò shénme?',[['灯节','dēngjié','เทศกาลโคม'],['鬼节','guǐjié','เทศกาลผี'],['花节','huājié','เทศกาลดอกไม้']],0],
+['中国的国宝动物是？','Zhōngguó de guóbǎo dòngwù shì?',[['熊猫','xióngmāo','แพนด้า'],['老虎','lǎohǔ','เสือ'],['猴子','hóuzi','ลิง']],0],
+['熊猫最喜欢吃什么？','Xióngmāo zuì xǐhuan chī shénme?',[['竹子','zhúzi','ไผ่'],['鱼','yú','ปลา'],['肉','ròu','เนื้อ']],0],
+['中国最长的河流是？','Zhōngguó zuì cháng de héliú shì?',[['长江','Chángjiāng','แม่น้ำแยงซี'],['黄河','Huánghé','แม่น้ำเหลือง'],['珠江','Zhūjiāng','แม่น้ำจูเจียง']],0],
+['被称为中国"母亲河"的是？','Bèi chēng wéi Zhōngguó "mǔqīn hé" de shì?',[['黄河','Huánghé','แม่น้ำเหลือง'],['长江','Chángjiāng','แม่น้ำแยงซี'],['淮河','Huáihé','แม่น้ำหวย']],0],
+['中国的首都是？','Zhōngguó de shǒudū shì?',[['北京','Běijīng','ปักกิ่ง'],['上海','Shànghǎi','เซี่ยงไฮ้'],['广州','Guǎngzhōu','กวางโจว']],0],
+['东方明珠塔在哪个城市？','Dōngfāng Míngzhū tǎ zài nǎ ge chéngshì?',[['上海','Shànghǎi','เซี่ยงไฮ้'],['北京','Běijīng','ปักกิ่ง'],['深圳','Shēnzhèn','เซินเจิ้น']],0],
+['古代皇帝祭天的建筑是？','Gǔdài huángdì jìtiān de jiànzhù shì?',[['天坛','Tiāntán','เทียนถาน'],['故宫','Gùgōng','พระราชวังต้องห้าม'],['颐和园','Yíhéyuán','พระราชวังฤดูร้อน']],0],
+['故宫在哪个城市？','Gùgōng zài nǎ ge chéngshì?',[['北京','Běijīng','ปักกิ่ง'],['西安','Xī\'ān','ซีอาน'],['南京','Nánjīng','หนานจิง']],0],
+['万里长城大约有多长？','Wànlǐ Chángchéng dàyuē yǒu duō cháng?',[['约500公里','yuē wǔbǎi gōnglǐ','ประมาณ 500 กม.'],['约5000公里','yuē wǔqiān gōnglǐ','ประมาณ 5,000 กม.'],['约21000公里','yuē èrshíyīqiān gōnglǐ','ประมาณ 21,000 กม.']],2],
+['以奇松、怪石、云海闻名的山是？','Yǐ qísōng, guàishí, yúnhǎi wénmíng de shān shì?',[['黄山','Huángshān','หวงซาน'],['泰山','Tàishān','ไท่ซาน'],['华山','Huàshān','หัวซาน']],0],
+['杭州著名的湖是？','Hángzhōu zhùmíng de hú shì?',[['西湖','Xīhú','ซีหู'],['东湖','Dōnghú','ตงหู'],['南湖','Nánhú','หนานหู']],0],
+['兵马俑在哪个省？','Bīngmǎyǒng zài nǎ ge shěng?',[['陕西','Shǎnxī','ส่านซี'],['山西','Shānxī','ซานซี'],['河南','Hénán','เหอหนาน']],0],
+['古代丝绸之路的起点是？','Gǔdài Sīchóu zhī Lù de qǐdiǎn shì?',[['西安（长安）','Xī\'ān (Cháng\'ān)','ซีอาน (ฉางอัน)'],['洛阳','Luòyáng','ลั่วหยาง'],['开封','Kāifēng','ไคเฟิง']],0],
+['中国速度最快的火车是？','Zhōngguó sùdù zuì kuài de huǒchē shì?',[['高铁','gāotiě','รถไฟความเร็วสูง'],['绿皮车','lǜpíchē','รถไฟเขียว'],['马车','mǎchē','รถม้า']],0],
+['下列哪个不是四大发明？','Xiàliè nǎ ge bú shì sì dà fāmíng?',[['算盘','suànpán','ลูกคิด'],['火药','huǒyào','ดินปืน'],['指南针','zhǐnánzhēn','เข็มทิศ']],0],
+['火药的三种原料是？','Huǒyào de sān zhǒng yuánliào shì?',[['硝石、硫磺、木炭','xiāoshí, liúhuáng, mùtàn','ดินประสิว กำมะถัน ถ่าน'],['金、银、铜','jīn, yín, tóng','ทอง เงิน ทองแดง'],['米、面、盐','mǐ, miàn, yán','ข้าว แป้ง เกลือ']],0],
+['发明地动仪的科学家是？','Fāmíng dìdòngyí de kēxuéjiā shì?',[['张衡','Zhāng Héng','จางเหิง'],['祖冲之','Zǔ Chōngzhī','จู่ชงจือ'],['李白','Lǐ Bái','หลี่ไป๋']],0],
+['改进造纸术的人是？','Gǎijìn zàozhǐshù de rén shì?',[['蔡伦','Cài Lún','ไช่หลุน'],['毕昇','Bì Shēng','ปี้เซิง'],['孔子','Kǒngzǐ','ขงจื้อ']],0],
+['活字印刷术的发明者是？','Huózì yìnshuāshù de fāmíngzhě shì?',[['毕昇','Bì Shēng','ปี้เซิง'],['蔡伦','Cài Lún','ไช่หลุน'],['张衡','Zhāng Héng','จางเหิง']],0],
+['指南针在古代最早叫做？','Zhǐnánzhēn zài gǔdài zuìzǎo jiàozuò?',[['司南','sīnán','ซือหนาน'],['罗盘','luópán','หลัวผัน'],['北斗','Běidǒu','เป๋ยโต่ว']],0],
+['被誉为中国"国粹"的戏剧是？','Bèi yù wéi Zhōngguó "guócuì" de xìjù shì?',[['京剧','Jīngjù','งิ้วปักกิ่ง'],['越剧','Yuèjù','งิ้วเยว่'],['豫剧','Yùjù','งิ้วอวี่']],0],
+['"文房四宝"指的是？','"Wénfáng sì bǎo" zhǐ de shì?',[['笔墨纸砚','bǐ mò zhǐ yàn','พู่กัน หมึก กระดาษ จอกหมึก'],['琴棋书画','qín qí shū huà','พิณ หมากรุก หนังสือ ภาพวาด'],['柴米油盐','chái mǐ yóu yán','ฟืน ข้าว น้ำมัน เกลือ']],0],
+['中国画通常又叫做？','Zhōngguó huà tōngcháng yòu jiàozuò?',[['国画','guóhuà','กั๋วฮั่ว'],['油画','yóuhuà','ภาพสีน้ำมัน'],['素描','sùmiáo','ภาพสเก็ตช์']],0],
+['中医"望闻问切"一共几种方法？','Zhōngyī "wàng wén wèn qiè" yígòng jǐ zhǒng fāngfǎ?',[['2','liǎng','2'],['4','sì','4'],['6','liù','6']],1],
+['针灸包括哪两种疗法？','Zhēnjiǔ bāokuò nǎ liǎng zhǒng liáofǎ?',[['针法和灸法','zhēnfǎ hé jiǔfǎ','วิธีเข็มและวิธี灸'],['吃药和开刀','chīyào hé kāidāo','กินยาและผ่าตัด'],['按摩和跑步','ànmó hé pǎobù','นวดและวิ่ง']],0],
+['中国独有的茶类是？','Zhōngguó dú yǒu de chálèi shì?',[['花茶','huāchá','ชาดอกไม้'],['绿茶','lǜchá','ชาเขียว'],['红茶','hóngchá','ชาดำ']],0],
+['著名的绿茶是？','Zhùmíng de lǜchá shì?',[['西湖龙井茶','Xīhú Lóngjǐng chá','ชาซีหูหลงจิ่ง'],['祁红茶','Qíhóng chá','ชาฉีหง'],['普洱茶','Pǔ\'ěr chá','ชาผูเอ๋อร์']],0],
+['中国人饮茶的历史大约有多久？','Zhōngguó rén yǐnchá de lìshǐ dàyuē yǒu duō jiǔ?',[['2000多年','liǎngqiān duō nián','กว่า 2,000 ปี'],['500年','wǔbǎi nián','500 ปี'],['100年','yìbǎi nián','100 ปี']],0],
+['川菜最大的特点是？','Chuāncài zuì dà de tèdiǎn shì?',[['麻辣','málà','ชาและเผ็ด'],['清淡','qīngdàn','จืดใส'],['甜','tián','หวาน']],0],
+['点心"早茶"最有名的是哪个省？','Diǎnxin "zǎochá" zuì yǒumíng de shì nǎ ge shěng?',[['广东','Guǎngdōng','กวางตุ้ง'],['四川','Sìchuān','เสฉวน'],['山东','Shāndōng','ซานตง']],0],
+['北方人的主食通常是？','Běifāng rén de zhǔshí tōngcháng shì?',[['面食','miànshí','อาหารแป้ง'],['米饭','mǐfàn','ข้าวสวย'],['水果','shuǐguǒ','ผลไม้']],0],
+['中国人过春节常常吃什么？','Zhōngguó rén guò Chūnjié chángcháng chī shénme?',[['饺子','jiǎozi','เกี๊ยว'],['月饼','yuèbǐng','ขนมไหว้พระจันทร์'],['粽子','zòngzi','บ๊ะจ่าง']],0],
+['汤圆象征什么？','Tāngyuán xiàngzhēng shénme?',[['团圆','tuányuán','การพร้อมหน้า'],['分手','fēnshǒu','การจากลา'],['生气','shēngqì','ความโกรธ']],0],
+['中国货币的基本单位是？','Zhōngguó huòbì de jīběn dānwèi shì?',[['元','yuán','หยวน'],['美元','měiyuán','ดอลลาร์'],['泰铢','Tàizhū','บาท']],0],
+['口语中"一块钱"的"块"意思是？','Kǒuyǔ "yí kuài qián" zhōng de "kuài" yìsi shì?',[['元','yuán','หยวน'],['角','jiǎo','เจี่ยว'],['分','fēn','เฟิน']],0],
+['中国国旗的主要颜色是？','Zhōngguó guóqí de zhǔyào yánsè shì?',[['红色','hóngsè','สีแดง'],['蓝色','lánsè','สีน้ำเงิน'],['白色','báisè','สีขาว']],0],
+['中国的国歌是？','Zhōngguó de guógē shì?',[['《义勇军进行曲》','Yìyǒngjūn Jìnxíngqǔ','มาร์ชทหารอาสา'],['《茉莉花》','Mòlìhuā','ดอกมะลิ'],['《春节序曲》','Chūnjié Xùqǔ','เพลงตรุษจีน']],0],
+['中国共有多少个省级行政区？','Zhōngguó gòng yǒu duōshao ge shěngjí xíngzhèngqū?',[['23','èrshísān','23'],['34','sānshísì','34'],['45','sìshíwǔ','45']],1],
+['中国面积最大的省级行政区是？','Zhōngguó miànjī zuì dà de shěngjí xíngzhèngqū shì?',[['新疆','Xīnjiāng','ซินเจียง'],['西藏','Xīzàng','ทิเบต'],['内蒙古','Nèiménggǔ','มองโกเลียใน']],0],
+['泰国位于中国的哪个方向？','Tàiguó wèiyú Zhōngguó de nǎ ge fāngxiàng?',[['南方','nánfāng','ทิศใต้'],['北方','běifāng','ทิศเหนือ'],['西方','xīfāng','ทิศตะวันตก']],0],
+['中国和泰国之间的海是？','Zhōngguó hé Tàiguó zhī jiān de hǎi shì?',[['南海','Nánhǎi','ทะเลจีนใต้'],['东海','Dōnghǎi','ทะเลตะวันออก'],['黄海','Huánghǎi','ทะเลเหลือง']],0],
+['汉字已经有多少年历史？','Hànzì yǐjīng yǒu duōshao nián lìshǐ?',[['3000多年','sānqiān duō nián','กว่า 3,000 ปี'],['1000年','yìqiān nián','1,000 ปี'],['500年','wǔbǎi nián','500 ปี']],0],
+['汉字起源于什么文字？','Hànzì qǐyuán yú shénme wénzì?',[['象形文字','xiàngxíng wénzì','อักษรภาพ'],['拼音文字','pīnyīn wénzì','อักษรเสียง'],['字母文字','zìmǔ wénzì','อักษรตัวอักษร']],0],
+['秦朝统一后使用的标准字体是？','Qíncháo tǒngyī hòu shǐyòng de biāozhǔn zìtǐ shì?',[['小篆','xiǎozhuàn','เสี่ยวจ้วน'],['隶书','lìshū','ลี่ชู'],['草书','cǎoshū','เฉ่าชู']],0],
+['现代汉字手写体的标准是？','Xiàndài Hànzì shǒuxiětǐ de biāozhǔn shì?',[['楷书','kǎishū','ข่ายชู'],['行书','xíngshū','สิงชู'],['篆书','zhuànshū','จ้วนชู']],0],
+['汉语拼音一共有几个声调？','Hànyǔ pīnyīn yígòng yǒu jǐ ge shēngdiào?',[['3','sān','3'],['4','sì','4'],['6','liù','6']],1],
+['句尾的"吗"表示什么句子？','Jù wěi de "ma" biǎoshì shénme jùzi?',[['疑问句','yíwènjù','ประโยคคำถาม'],['感叹句','gǎntànjù','ประโยคอุทาน'],['祈使句','qíshǐjù','ประโยคคำสั่ง']],0],
+['泰语"ขอบคุณ"对应的中文是？','Tàiyǔ "khàwpkhun" duìyìng de Zhōngwén shì?',[['谢谢','xièxie','ขอบคุณ'],['再见','zàijiàn','ลาก่อน'],['你好','nǐ hǎo','สวัสดี']],0],
+['问别人名字时应该说？','Wèn biérén míngzi shí yīnggāi shuō?',[['你叫什么名字？','Nǐ jiào shénme míngzi?','คุณชื่ออะไร'],['你几岁？','Nǐ jǐ suì?','คุณกี่ขวบ'],['你去哪儿？','Nǐ qù nǎr?','คุณไปไหน']],0],
+['中国人的姓名顺序是？','Zhōngguó rén de xìngmíng shùnxù shì?',[['姓在前','xìng zài qián','แซ่อยู่หน้า'],['名在前','míng zài qián','ชื่ออยู่หน้า'],['随便','suíbiàn','ตามใจ']],0],
+['中国人口最多的姓氏之一是？','Zhōngguó rénkǒu zuì duō de xìngshì zhī yī shì?',[['李','Lǐ','หลี่'],['赵','Zhào','จ้าว'],['钱','Qián','เฉียน']],0],
+['下列哪个是复姓？','Xiàliè nǎ ge shì fùxìng?',[['欧阳','Ōuyáng','โอวหยาง'],['林','Lín','หลิน'],['陈','Chén','เฉิน']],0],
+['李白被后人称为？','Lǐ Bái bèi hòurén chēng wéi?',[['诗仙','shīxiān','ซือเซียน'],['诗圣','shīshèng','ซือเซิ่ง'],['诗王','shīwáng','ซือหวาง']],0],
+['杜甫被后人称为？','Dù Fǔ bèi hòurén chēng wéi?',[['诗圣','shīshèng','ซือเซิ่ง'],['诗仙','shīxiān','ซือเซียน'],['诗鬼','shīguǐ','ซือกุ่ย']],0],
+['《西游记》里会七十二变的是？','"Xīyóujì" lǐ huì qīshí\'èr biàn de shì?',[['孙悟空','Sūn Wùkōng','ซุนหงอคง'],['猪八戒','Zhū Bājiè','ตือโป๊ยก่าย'],['沙僧','Shā Sēng','ซาเจิง']],0],
+['下列哪本不是四大文学名著？','Xiàliè nǎ běn bú shì sì dà wénxué míngzhù?',[['《聊斋志异》','Liáozhāi Zhìyì','เรื่องแปลกในห้องคุย'],['《红楼梦》','Hónglóumèng','ความฝันในหอแดง'],['《水浒传》','Shuǐhǔ Zhuàn','ซ่องฮู้ก']],0],
+['孔子是中国古代伟大的？','Kǒngzǐ shì Zhōngguó gǔdài wěidà de?',[['思想家、教育家','sīxiǎngjiā, jiàoyùjiā','นักคิด นักการศึกษา'],['军事家','jūnshìjiā','นักการทหาร'],['商人','shāngrén','พ่อค้า']],0],
+['起源于中国的最古老棋类是？','Qǐyuán yú Zhōngguó de zuì gǔlǎo qílèi shì?',[['围棋','wéiqí','หมากล้อม'],['国际象棋','guójì xiàngqí','หมากรุกสากล'],['跳棋','tiàoqí','หมากฮอส']],0],
+['麻将通常几个人一起玩？','Májiàng tōngcháng jǐ ge rén yìqǐ wán?',[['2人','liǎng ge rén','2 คน'],['4人','sì ge rén','4 คน'],['8人','bā ge rén','8 คน']],1],
+['中国武术又叫做？','Zhōngguó wǔshù yòu jiàozuò?',[['功夫','gōngfu','กังฟู'],['太极','tàijí','ไทเก๊ก'],['拳击','quánjī','มวย']],0],
+['少林寺在哪个省？','Shàolín Sì zài nǎ ge shěng?',[['河南','Hénán','เหอหนาน'],['湖北','Húběi','หูเป่ย'],['河北','Héběi','เหอเป่ย']],0],
+['武当山在哪个省？','Wǔdāng Shān zài nǎ ge shěng?',[['湖北','Húběi','หูเป่ย'],['湖南','Húnán','หูหนาน'],['江西','Jiāngxī','เจียงซี']],0],
+['峨眉派武术起源于哪个省？','Éméi pài wǔshù qǐyuán yú nǎ ge shěng?',[['四川','Sìchuān','เสฉวน'],['广东','Guǎngdōng','กวางตุ้ง'],['福建','Fújiàn','ฝูเจี้ยน']],0],
+['被称为"花中之王"的是？','Bèi chēng wéi "huā zhōng zhī wáng" de shì?',[['牡丹','mǔdān','โบตั๋น'],['梅花','méihuā','บ๊วย'],['菊花','júhuā','เบญจมาศ']],0],
+['过春节时红包里装的是？','Guò Chūnjié shí hóngbāo lǐ zhuāng de shì?',[['钱','qián','เงิน'],['糖果','tángguǒ','ลูกอม'],['树叶','shùyè','ใบไม้']],0],
+['春联一般贴在哪里？','Chūnlián yìbān tiē zài nǎlǐ?',[['门上','mén shang','บนประตู'],['床上','chuáng shang','บนเตียง'],['桌上','zhuō shang','บนโต๊ะ']],0],
+['"福"字倒着贴表示？','"Fú" zì dào zhe tiē biǎoshì?',[['福到了','fú dào le','โชคมาถึง'],['福走了','fú zǒu le','โชคจากไป'],['福没了','fú méi le','โชคหมด']],0],
+['中国龙象征着？','Zhōngguó lóng xiàngzhēng shénme?',[['权力和尊严','quánlì hé zūnyán','อำนาจและศักดิ์ศรี'],['凶恶','xiōng\'è','ความดุร้าย'],['懒惰','lǎnduò','ความเกียจคร้าน']],0],
+['中国地图的形状常被说成像？','Zhōngguó dìtú de xíngzhuàng cháng bèi shuō chéng xiàng?',[['公鸡','gōngjī','ไก่ตัวผู้'],['兔子','tùzi','กระต่าย'],['大象','dàxiàng','ช้าง']],0],
+['中国陆上邻国大约有多少个？','Zhōngguó lùshang línguó dàyuē yǒu duōshao ge?',[['6','liù','6'],['14','shísì','14'],['30','sānshí','30']],1],
+['珠穆朗玛峰位于中国和哪国边界？','Zhūmùlǎngmǎ Fēng wèiyú Zhōngguó hé nǎ guó biānjiè?',[['尼泊尔','Níbó\'ěr','เนปาล'],['泰国','Tàiguó','ไทย'],['日本','Rìběn','ญี่ปุ่น']],0],
+['中国最大的岛屿是？','Zhōngguó zuì dà de dǎoyǔ shì?',[['台湾岛','Táiwān Dǎo','เกาะไต้หวัน'],['海南岛','Hǎinán Dǎo','เกาะไหหลำ'],['崇明岛','Chóngmíng Dǎo','เกาะฉงหมิง']],0],
+['海南岛最有名的水果是？','Hǎinán Dǎo zuì yǒumíng de shuǐguǒ shì?',[['椰子','yēzi','มะพร้าว'],['苹果','píngguǒ','แอปเปิล'],['葡萄','pútao','องุ่น']],0],
+['下列哪个是中国传统乐器？','Xiàliè nǎ ge shì Zhōngguó chuántǒng yuèqì?',[['琵琶','pípá','ผีผา'],['钢琴','gāngqín','เปียโน'],['小提琴','xiǎotíqín','ไวโอลิน']],0],
+['二胡一共有几根弦？','Èrhú yígòng yǒu jǐ gēn xián?',[['2根','liǎng gēn','2 สาย'],['4根','sì gēn','4 สาย'],['6根','liù gēn','6 สาย']],0],
+['被尊为"书圣"的书法家是？','Bèi zūn wéi "shū shèng" de shūfǎjiā shì?',[['王羲之','Wáng Xīzhī','หวังซีจือ'],['颜真卿','Yán Zhēnqīng','เหยียนเจินชิง'],['柳公权','Liǔ Gōngquán','หลิ่วกงเฉวียน']],0],
+['"岁寒三友"指松、竹和？','"Suì hán sān yǒu" zhǐ sōng, zhú hé?',[['梅','méi','บ๊วย'],['菊','jú','เบญจมาศ'],['兰','lán','กล้วยไม้']],0],
+['"四书"一共有几本书？','"Sì Shū" yígòng yǒu jǐ běn shū?',[['4','sì','4'],['6','liù','6'],['8','bā','8']],0],
+['元宵节人们喜欢做什么活动？','Yuánxiāojié rénmen xǐhuan zuò shénme huódòng?',[['猜灯谜','cāi dēngmí','ทายปริศนาโคม'],['扫墓','sǎomù','ไหว้หลุมศพ'],['赛龙舟','sài lóngzhōu','แข่งเรือมังกร']],0],
+['端午赛龙舟是为了纪念谁？','Duānwǔ sài lóngzhōu shì wèile jìniàn shéi?',[['屈原','Qū Yuán','ชวีเยวียน'],['李白','Lǐ Bái','หลี่ไป๋'],['孔子','Kǒngzǐ','ขงจื้อ']],0],
+['中国传统的过年问候语是？','Zhōngguó chuántǒng de guònián wènhòuyǔ shì?',[['新年快乐','Xīnnián kuàilè','สวัสดีปีใหม่'],['生日快乐','Shēngrì kuàilè','สุขสันต์วันเกิด'],['晚安','Wǎn\'ān','ราตรีสวัสดิ์']],0],
+['汉语拼音里"zh ch sh"属于？','Hànyǔ pīnyīn lǐ "zh ch sh" shǔyú?',[['声母','shēngmǔ','พยัญชนะต้น'],['韵母','yùnmǔ','สระ'],['声调','shēngdiào','วรรณยุกต์']],0],
+['泰语"ครู"对应的中文是？','Tàiyǔ "khru" duìyìng de Zhōngwén shì?',[['老师','lǎoshī','เหล่าซือ'],['学生','xuésheng','นักเรียน'],['医生','yīshēng','หมอ']],0],
+['"一心一意"的意思是？','"Yì xīn yí yì" de yìsi shì?',[['专心认真','zhuānxīn rènzhēn','ตั้งใจเต็มที่'],['三心二意','sān xīn èr yì','ใจโลเล'],['马马虎虎','mǎmǎhǔhǔ','ส่ง ๆ ลวก ๆ']],0],
+['"温故而知新"告诉我们要？','"Wēn gù ér zhī xīn" gàosu wǒmen yào?',[['复习旧知识','fùxí jiù zhīshi','ทบทวนความรู้เดิม'],['只学新的','zhǐ xué xīn de','เรียนแต่ของใหม่'],['不学习','bù xuéxí','ไม่เรียน']],0],
+['"一年之计在于"什么？','"Yì nián zhī jì zài yú" shénme?',[['春','chūn','ฤดูใบไม้ผลิ'],['夏','xià','ฤดูร้อน'],['冬','dōng','ฤดูหนาว']],0]
+];
+/* 状态 */
+var G={pool:[],ptr:0,ok:0,streak:0,locked:false,busy:false,tube:-1};
+function bestKey(t){return 'cq3_best_'+t}
+/* 顶栏六筒 */
+(function(){var r=$('#tubesRow');var h='';
+ for(var g=1;g<=5;g++)h+='<button class="tubeBtn" data-g="'+g+'">第'+g+'筒</button>';
+ h+='<button class="tubeBtn" data-g="99">随机筒</button>';
+ r.innerHTML=h;
+ Array.prototype.forEach.call(r.children,function(b){b.onclick=function(){startTube(+b.getAttribute('data-g'))}})})();
+function startTube(g){var btns=$('#tubesRow').children;for(var i=0;i<btns.length;i++)btns[i].classList.remove('on');
+ var idx=g===99?5:g-1;btns[idx].classList.add('on');
+ G.tube=g;
+ if(g===99){G.pool=shuffle(QS.map(function(_,i){return i}))}
+ else{var a=[];for(var i=(g-1)*20;i<g*20;i++)a.push(i);G.pool=shuffle(a)}
+ G.ptr=0;G.ok=0;G.streak=0;G.busy=false;buildSticks();$('#resWrap').classList.remove('on');$('#shakeBtn').disabled=false;
+ toast('🎋 第'+(g===99?'随机':g)+'筒已就绪，点击摇签！')}
+function buildSticks(){var box=$('#sticks');box.innerHTML='';
+ for(var i=0;i<7;i++){var s=document.createElement('div');s.className='stick';
+  s.style.left=(3+i*13.6)+'%';s.style.setProperty('--r',((Math.random()*14)-7).toFixed(1)+'deg');s.style.height=(70+Math.random()*30)+'%';
+  s.innerHTML='<span class="dot"></span><i>上上签</i>';box.appendChild(s)}}
+var rattleT=null;
+$('#shakeBtn').onclick=function(){if(G.busy||G.ptr>=G.pool.length)return;G.busy=true;$('#shakeBtn').disabled=true;
+ var tw=$('#tubeWrap');tw.classList.add('shaking');sfxGong();
+ rattleT=setInterval(sfxRattle,90);
+ setTimeout(function(){clearInterval(rattleT);tw.classList.remove('shaking');
+  var f=document.createElement('div');f.className='flystick';f.innerHTML='<i>上上签</i>';tw.appendChild(f);
+  tone(520,.1,'triangle',.12);tone(780,.12,'triangle',.1,.08);
+  setTimeout(function(){f.remove();openScroll(G.pool[G.ptr])},900)},1600)};
+function openScroll(qi){var q=QS[qi];G.locked=false;
+ $('#qNum').textContent='第 '+(qi+1)+' 签';
+ $('#qS').textContent=q[0];$('#qP').textContent=q[1];
+ var box=$('#qO');box.innerHTML='';
+ q[2].forEach(function(o,i){var b=document.createElement('button');b.className='opt';
+  b.innerHTML='<span class="tag">'+'ABC'.charAt(i)+'</span><span><span class="tx">'+o[0]+'</span> <span class="pp">'+o[1]+'</span><br><span class="th">'+o[2]+'</span></span>';
+  b.onclick=function(){pick(i,b,q)};box.appendChild(b)});
+ $('#qE').classList.remove('on');$('#nextBtn').disabled=true;
+ var sw=$('#scrollWrap');sw.classList.add('on');
+ requestAnimationFrame(function(){requestAnimationFrame(function(){sw.classList.add('open')})});
+ sfxGong()}
+function pick(i,btn,q){if(G.locked)return;G.locked=true;
+ var bs=$('#qO').children;for(var j=0;j<bs.length;j++){bs[j].disabled=true;if(j===q[3])bs[j].classList.add('right')}
+ var c=q[2][q[3]];
+ var e=$('#qE');
+ if(i===q[3]){G.ok++;G.streak++;btn.classList.add('right');sfxOk();flash('rgba(80,220,140,.14)');
+  burst(innerWidth/2,innerHeight*.35,['#ffd76a','#ff6a4a','#7ae08a','#ffe9a0'],26);
+  e.innerHTML='<span class="ok">✔ ตอบถูกต้อง!</span> 「'+c[0]+'」('+c[1]+') = '+c[2];e.classList.add('on')}
+ else{G.streak=0;btn.classList.add('wrong');sfxNo();flash('rgba(220,60,50,.13)');
+  e.innerHTML='<span class="no">❌ ตอบผิด!</span> คำอธิบาย: คำตอบที่ถูกต้องคือ 「'+c[0]+'」('+c[1]+') แปลว่า "'+c[2]+'"';e.classList.add('on')}
+ $('#nextBtn').disabled=false}
+$('#nextBtn').onclick=function(){var sw=$('#scrollWrap');sw.classList.remove('open');
+ setTimeout(function(){sw.classList.remove('on');G.ptr++;G.busy=false;
+  if(G.ptr>=G.pool.length)finish();else $('#shakeBtn').disabled=false},320)};
+function finish(){$('#resWrap').classList.add('on');var n=G.pool.length,pct=Math.round(G.ok/n*100);
+ $('#rS').textContent=G.ok+' / '+n;
+ $('#rD').textContent='正确率 '+pct+'% ・ ความถูกต้อง '+pct+'%';
+ var st=pct>=90?3:pct>=70?2:pct>=50?1:0,h='';
+ for(var i=0;i<3;i++)h+='<span class="'+(i<st?'lit':'')+'" style="animation-delay:'+(i*.12)+'s">★</span>';
+ $('#rSt').innerHTML=h;
+ $('#rT').textContent=pct>=90?'🏆 上上签！':pct>=70?'🎉 上签！':pct>=50?'👍 中签！':'💪 再努力！';
+ if(G.tube!==99){var prev=+(localStorage.getItem(bestKey(G.tube))||0);if(G.ok>prev){localStorage.setItem(bestKey(G.tube),G.ok);toast('🏅 新纪录！')}}
+ sfxWin();for(var k=0;k<5;k++){setTimeout(function(){burst(Math.random()*innerWidth,innerHeight*.3,['#ffd76a','#ff6a4a','#7ae08a','#ffe9a0','#ff9ad5'],40)},k*200)}}
+$('#rRetry').onclick=function(){$('#resWrap').classList.remove('on');startTube(G.tube)};
+$('#rHome').onclick=function(){$('#resWrap').classList.remove('on');window.scrollTo({top:0,behavior:'smooth'});toast('🏠 เลือก筒ด้านบนเพื่อเริ่มใหม่')};
+/* 粒子+彩带（不延迟） */
+var fxc=$('#fx'),fctx=fxc.getContext('2d'),W=0,H=0,motes=[],confs=[];
+function resizeC(){W=innerWidth;H=innerHeight;fxc.width=W;fxc.height=H;motes=[];
+ var n=Math.min(46,Math.floor(W*H/34000));
+ for(var i=0;i<n;i++)motes.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.8+.6,s:Math.random()*.3+.1,w:Math.random()*Math.PI*2,tw:Math.random()*2+1})}
+var rzT=null;addEventListener('resize',function(){clearTimeout(rzT);rzT=setTimeout(resizeC,150)},{passive:true});resizeC();
+function burst(x,y,colors,n){n=n||30;for(var i=0;i<n;i++){var a=Math.random()*Math.PI*2,v=Math.random()*10+5;
+ confs.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-4,g:.42,rot:Math.random()*360,vr:(Math.random()-.5)*22,c:colors[Math.floor(Math.random()*colors.length)],life:1,size:Math.random()*7+4,round:Math.random()<.3})}}
+(function loop(){fctx.clearRect(0,0,W,H);
+ motes.forEach(function(o){o.y-=o.s;o.w+=.03;o.x+=Math.sin(o.w)*.4;if(o.y<-10){o.y=H+10;o.x=Math.random()*W}
+  var al=.16+Math.sin(o.w*o.tw)*.13;fctx.fillStyle='rgba(255,205,110,'+al+')';fctx.beginPath();fctx.arc(o.x,o.y,o.r,0,7);fctx.fill()});
+ confs=confs.filter(function(p){return p.life>0});
+ confs.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.rot+=p.vr;p.life-=.032;p.vx*=.985;
+  fctx.save();fctx.globalAlpha=Math.max(0,p.life);fctx.translate(p.x,p.y);fctx.rotate(p.rot*Math.PI/180);
+  fctx.fillStyle=p.c;fctx.shadowColor=p.c;fctx.shadowBlur=6;
+  if(p.round){fctx.beginPath();fctx.arc(0,0,p.size/2,0,Math.PI*2);fctx.fill()}else{fctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*.6)}
+  fctx.restore()});
+ requestAnimationFrame(loop)})();
+/* 工具 */
+var FS=[.95,1,1.12,1.25,1.45,1.6],fsI=+(localStorage.getItem('cq3_fs')||1);
+function applyFs(){document.documentElement.style.setProperty('--fs',FS[fsI]);localStorage.setItem('cq3_fs',fsI)}
+$('#fsBtn').onclick=function(){fsI=(fsI+1)%FS.length;applyFs();toast('🔠 字号 '+(fsI+1)+'/'+FS.length)};
+$('#sndBtn').onclick=function(){muted=!muted;localStorage.setItem('cq3_mute',muted?'1':'0');$('#sndBtn').textContent=muted?'🔇':'🔊'};
+$('#fullBtn').onclick=function(){if(document.fullscreenElement){document.exitFullscreen()}else{var p=document.documentElement.requestFullscreen();if(p&&p.catch)p.catch(function(){toast('当前环境不支持全屏')})}};
+if(muted)$('#sndBtn').textContent='🔇';applyFs();buildSticks();startTube(1);
+setTimeout(function(){toast('🎋 点击签筒摇签抽题！⛶ 可全屏')},600);
+</script>
+</body>
+</html>
